@@ -1,0 +1,176 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Elements Reference - Massively by HTML5 UP</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">My Portfolio</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="index.html">Reed's Portfolio</a></li>
+							<li class="active"><a href="elements.html">Code/Details</a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<h1>SQL Hackathon</h1>
+								</header>
+
+								<!-- Text stuff -->
+									<header>
+										<h2>Project Details</h2>
+										<p>Worked in groups of four, received 1 hour to complete 4 questions (1 question per person). Each person was responsible for one question but by the end of it we all helped on every problem. </p>
+									</header>
+									<p>The goal of the project was to use SQL scripting to query and manipulate a database containing information about various trees. The objective was to complete a set of specified tasks within a one-hour time frame and submit the resulting SQL script, demonstrating proficiency in SQL skills. I was responsible for question 1 in this competition.</p>
+									
+									<header>
+										<h3>Download project details below</h3>
+										<p>The link below provides all necessary details, code, and results from the project.</p>
+									</header>
+									<a href="images/Hack/Final Project Report.docx" download>Link to final project report</a>
+									<header>
+									<hr />
+
+
+
+								<!-- Image -->
+									<h2>Image of prompt</h2>
+
+									<h3></h3>
+									<span class="image fit"><img src="images/Page 1.jpg" alt="" /></span>
+									<span class="image fit"><img src="images/Page 2.jpg" alt="" /></span>
+
+									<hr />
+
+								<!-- Table -->
+								<h2>Team members and associated problem</h2>
+
+								<h3></h3>
+								<div class="table-wrapper">
+									<table>
+										<thead>
+											<tr>
+												<th>Name</th>
+												<th>Question #</th>
+												<th>Score</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>Reed Foster</td>
+												<td>Question 1</td>
+												<td>18/19</td>
+											</tr>
+											<tr>
+												<td>Jenna Grant</td>
+												<td>Question 2</td>
+												<td>20/20</td>
+											</tr>
+											<tr>
+												<td>Alexa Martin</td>
+												<td>Question 3</td>
+												<td>21/21</td>
+											</tr>
+											<tr>
+												<td>Hikaru Carolin</td>
+												<td>Question 4</td>
+												<td>20/20</td>
+											</tr>
+										</tbody>
+										<tfoot>
+											<tr>
+										</tfoot>
+									</table>
+								</div>
+
+								<!-- Preformatted Code -->
+									<h2>My Code</h2>
+									<pre><code>
+SELECT DISTINCT t.Tree AS CommonName, CASE
+WHEN soil_count < 6 THEN 'Picky'
+WHEN soil_count < 8 THEN 'Moderate'
+ELSE 'Tolerant'
+END AS PickinessCategory
+FROM TREES t
+JOIN TREEZONES tz ON t.TreeID = tz.TreeID
+JOIN ZONES z ON tz.ZoneID = z.ZoneID
+JOIN (
+	SELECT TreeID, COUNT(DISTINCT TreeID || Soil) AS soil_count
+	FROM SOILS
+	GROUP BY TreeID
+) s ON t.TreeID = s.TreeID
+WHERE (
+	SELECT COUNT(DISTINCT ZoneID)
+	FROM TREEZONES
+	WHERE TreeID = t.TreeID
+) >= 7
+ORDER BY CommonName;
+										
+										
+</code></pre>
+
+							</section>
+							<h2>Image of output</h2>
+					</div>
+
+							<!-- Image -->
+							<span class="image fit"><img src="images/Picture 3.jpg" alt="" /></span>
+
+							<hr />
+				<!-- Footer -->
+					<footer id="footer">
+							<section>
+								<h3>Email</h3>
+								<p><a href="#">reedfosterphot@gmail.com</a></p>
+							</section>
+							<section>
+								<h3>Social</h3>
+								<ul class="icons alt">
+									<li><a href="#" class="icon brands alt fa-linkedin"><span class="label">LinkedIn</span></a></li>
+									<li><a href="#" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+								</ul>
+							</section>
+						</section>
+					</footer>
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Untitled</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

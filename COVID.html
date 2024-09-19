@@ -1,0 +1,396 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Elements Reference - Massively by HTML5 UP</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">My Portfolio</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="index.html">Reed's Portfolio</a></li>
+							<li class="active"><a href="elements.html">Code/Details</a></li>
+						</ul>
+
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<h1>Covid 19 Impact Analysis</h1>
+								</header>
+
+								<!-- Text stuff -->
+									<header>
+										<h2>Project Details</h2>
+										<p>Worked in groups of two. Although most work completed by me.</p>
+									</header>
+									<p>Led a comprehensive data analysis project examining the societal impacts of the COVID-19 pandemic in different counties in Iowa. Utilized data from Google Mobility Reports, New York Times COVID case count, and GigaSheet to gain insights into changes in mobility patterns, COVID-19 cases, and the effect of population size within Iowa. Conducted data cleaning, integration, and analysis using R, with a focus on identifying correlations and trends across various counties in Iowa. Research questions addressed key aspects including sectoral impact, county population size differentials, and the relationship between mobility patterns and COVID-19 case trends.</p>
+									<p>In terms of my personal involvement, I wrote all of the code for cleaning and merging the necessary files, all the code to answer questions 2 and 3, and the entire project report besides the answers for questions 1 and 4.</p>
+									<header>
+										<h3>Download project details below</h3>
+										<p>The link below provides all necessary background details, research questions, and visualizations/answers associated with the project.
+									</header>
+									<a href="images/DW Project Report.docx" download>Link to final project report</a>
+						
+									<hr />
+
+
+
+								<!-- Preformatted Code -->
+									<h2>Code</h2>
+									<pre><code># Below is all code related to cleaning, merging, and the analysis for questions 2 and 3.
+
+
+										# LOAD AND CLEAN THE US DATASET
+										
+										# Step 1: Load necessary libraries
+										library(dplyr)
+										
+										# Step 2: Read the CSV file
+										data <- read.csv("2020_US_Region_Mobility_Report.csv")
+										View(data)
+										# Step 3: Label missing values as NA
+										data[data == ""] <- NA
+										
+										# Step 4: Filter data frame to include only Iowa in the sub_region_2 column
+										iowa_data <- data %>%
+										  filter(country_region_code == "US" & sub_region_1 == "Iowa")
+										
+										iowa_data$date <- as.Date(iowa_data$date, format="%m/%d/%Y")
+										
+										
+										# Step 6: View the cleaned data
+										head(iowa_data)
+										View(iowa_data)
+										
+										# Remove rows with blanks in the "sub_region_2" column
+										# Filter out rows with blank values in sub_region_2 for sub_region_1 labeled as Iowa
+										iowa_data <- iowa_data %>%
+										  filter(!(sub_region_1 == "Iowa" & sub_region_2 == ""))
+										
+										# Rename the column "sub_region_2" to "county"
+										iowa_data <- iowa_data %>%
+										  rename(county = sub_region_2,country = country_region,state = sub_region_1)
+										
+										# remove unnecessary columns
+										iowa_data <- iowa_data %>%
+										  select(-country_region_code, -metro_area, -iso_3166_2_code, -place_id, -date)
+										
+										
+										# Remove county from the end of data under the county column
+										iowa_data$county <- gsub("County", "", iowa_data$county, ignore.case = TRUE)
+										
+										View(iowa_data)
+										
+										
+										str(iowa_data)
+										
+										
+										
+										
+										# Replace all NAs with 0s
+										iowa_data <- iowa_data %>%
+										  mutate_all(~ ifelse(is.na(.), 0, .))
+										
+										View(iowa_data)
+										
+										# Change data types to numeric
+										
+										iowa_data$retail_and_recreation_percent_change_from_baseline <- as.numeric(iowa_data$retail_and_recreation_percent_change_from_baseline)
+										
+										iowa_data$grocery_and_pharmacy_percent_change_from_baseline <- as.numeric(iowa_data$grocery_and_pharmacy_percent_change_from_baseline)
+										
+										iowa_data$parks_percent_change_from_baseline <- as.numeric(iowa_data$parks_percent_change_from_baseline)
+										
+										iowa_data$transit_stations_percent_change_from_baseline <- as.numeric(iowa_data$transit_stations_percent_change_from_baseline)
+										
+										iowa_data$workplaces_percent_change_from_baseline <- as.numeric(iowa_data$workplaces_percent_change_from_baseline)
+										
+										iowa_data$residential_percent_change_from_baseline <- as.numeric(iowa_data$residential_percent_change_from_baseline)
+										
+										iowa_data$census_fips_code <- as.numeric(iowa_data$census_fips_code)
+										
+										
+										
+										str(iowa_data)
+										
+										
+										#condense duplicated counties and sum mobility data
+										condensed_data <- iowa_data %>%
+										  group_by(country, state, county) %>%
+										  summarize(
+											across(
+											  c(
+												retail_and_recreation_percent_change_from_baseline,
+												grocery_and_pharmacy_percent_change_from_baseline,
+												parks_percent_change_from_baseline,
+												transit_stations_percent_change_from_baseline,
+												workplaces_percent_change_from_baseline,
+												residential_percent_change_from_baseline
+											  ),
+											  ~ sum(., na.rm = TRUE),
+											  .names = "{.col}_sum"
+											)
+										  )
+										
+										
+										# Print the condensed data
+										View(condensed_data)
+										
+										write.csv(condensed_data, file = "condensed_iowa_data.csv", row.names = FALSE)
+										
+										#----------------------------------------------------------------------------------------
+										# PERFORM MERGE (covid data)
+										
+										# Read the datasets
+										data1 <- read.csv("condensed_iowa_data.csv")
+										data2 <- read.csv("Iowa Covid Data.csv")
+										
+										# Remove leading and trailing spaces in county names
+										data1$county <- trimws(data1$county)
+										data2$County <- trimws(data2$County)
+										
+										# Rename in data1
+										data1 <- data1 %>%
+										  mutate(county = ifelse(county == "O'Brien", "Obrien", county))
+										
+										# Rename in data2
+										data2 <- data2 %>%
+										  mutate(County = ifelse(row_number() == 40, "Obrien", County))
+										
+										# remove the /s
+										library(tidyverse)
+										data2$County <- str_trim(data2$County)
+										
+										# Merge the datasets based on the county column
+										merged_data <- left_join(data1, data2, by = c("county" = "County"))
+										
+										# Print the merged dataset
+										View(merged_data)
+										
+										# remove row 47 (shows total iowa numbers)
+										merged_data <- merged_data[-47, ]
+										
+										write.csv(merged_data, file = "first_merged_data.csv", row.names = FALSE)
+										
+										
+										#------------------------------------------------------------------------
+										# perform second merge (population data)
+										
+										data3 <- read.csv("first_merged_data.csv")
+										View(data3)
+										
+										data4 <- read.csv("population_data.csv")
+										View(data4)
+										
+										# Remove every column except for "name" and "population"
+										data4 <- data4 %>%
+										  select(name, population)
+										
+										# Rename the "name" column to "county"
+										data4 <- data4 %>%
+										  rename(county = name)
+										
+										data4 <- data4 %>%
+										  mutate(county = ifelse(county == "O'Brien", "Obrien", county))
+										
+										# Merge the datasets based on the county column
+										final_merged_data <- left_join(data3, data4, by = c("county" = "county"))
+										
+										View(final_merged_data)
+										
+										write.csv(final_merged_data, file = "final_merged_data.csv", row.names = FALSE)
+										
+										#------------------------------------------------------------------------
+										# Question 2
+										
+										# clean column names of final_merged_data
+										str(final_merged_data)
+										
+										final_merged_data <- final_merged_data %>%
+										  rename("Total Cases" = Total.Cases)
+										
+										final_merged_data <- final_merged_data %>%
+										  rename("Deaths per 100,000" = Total.Deaths.per.100.000)
+										
+										
+										final_merged_data <- final_merged_data %>%
+										  rename("Total Deaths" = Total.Deaths)
+										
+										final_merged_data <- final_merged_data %>%
+										  rename("Cases per 100,000" = Cases.per.100.00)
+										
+										final_merged_data <- final_merged_data %>%
+										  rename("Percent Fully Vaccinated" = Percent.Fully.Vaccinated)
+										
+										
+										write.csv(final_merged_data, file = "final_merged_data.csv", row.names = FALSE)
+										str(final_merged_data)
+										
+										#------------------------------------------------------------------------
+										# table for Q2
+										library(dplyr)
+										
+										
+										# Create a new column for population size category
+										final_merged_data$Population_Category <- cut(final_merged_data$population, breaks = c(0, 50000, Inf), labels = c("Less than 50,000", "Greater than 50,000"), include.lowest = TRUE)
+										
+										# Summarize total deaths for each population category
+										summary_table <- final_merged_data %>%
+										  group_by(Population_Category) %>%
+										  summarise(Sum_Total_Deaths = sum(`Total Deaths`, na.rm = TRUE))
+										
+										# Print the summary table
+										print(summary_table)
+										str(final_merged_data)
+										View(final_merged_data)
+										#------------------------------------------------------------------------
+										# GRAPH FOR Q2
+										# Assuming 'summary_table' is your summarized data frame
+										library(ggplot2)
+										
+										# Create a bar chart
+										ggplot(summary_table, aes(x = Population_Category, y = Sum_Total_Deaths, fill = Population_Category)) +
+										  geom_bar(stat = "identity") +
+										  labs(title = "Total Deaths by Population Category",
+											   x = "Population Category",
+											   y = "Sum of Total Deaths") +
+										  theme_minimal()
+										
+										#------------------------------------------------------------------------
+										# count number of data points to extend on explanation
+										counties_count <- table(cut(final_merged_data$population, breaks = c(0, 50000, Inf), labels = c("Less than 50,000", "Greater than 50,000"), include.lowest = TRUE))
+										counties_count
+										#------------------------------------------------------------------------
+										# population sums
+										# Create a new column for population size category
+										final_merged_data$Population_Category <- cut(final_merged_data$population, breaks = c(0, 50000, Inf), labels = c("Less than 50,000", "Greater than 50,000"), include.lowest = TRUE)
+										
+										# Summarize population for each population category
+										population_summary <- final_merged_data %>%
+										  group_by(Population_Category) %>%
+										  summarise(Sum_Population = sum(population, na.rm = TRUE))
+										
+										# Print the summary table
+										print(population_summary)
+										#------------------------------------------------------------------------
+										# calculate average deaths per county in each category
+										final_merged_data$population <- as.numeric(as.character(final_merged_data$population))
+										str(final_merged_data)
+										
+										# Filter data for populations above 50,000
+										above_50000_data <- final_merged_data[final_merged_data$population > 50000, ]
+										
+										# Filter data for populations below or equal to 50,000
+										below_50000_data <- final_merged_data[final_merged_data$population <= 50000, ]
+										
+										# Calculate average deaths for populations above 50,000
+										average_deaths_above_50000 <- mean(above_50000_data$`Total Deaths`, na.rm = TRUE)
+										
+										# Calculate average deaths for populations below or equal to 50,000
+										average_deaths_below_50000 <- mean(below_50000_data$`Total Deaths`, na.rm = TRUE)
+										
+										average_deaths_above_50000
+										average_deaths_below_50000
+										#------------------------------------------------------------------------
+										
+										# QUESTION 3
+										#table
+										
+										# Convert relevant columns to numeric
+										final_merged_data$`Total Cases` <- as.numeric(gsub(",", "", final_merged_data$`Total Cases`))
+										final_merged_data$`Total Deaths` <- as.numeric(gsub(",", "", final_merged_data$`Total Deaths`))
+										str(final_merged_data)
+										
+										# Calculate case-to-death ratio
+										final_merged_data$Case_Death_Ratio <- final_merged_data$`Total Cases`/final_merged_data$`Total Deaths`
+										
+										# Get the top 10 counties with the highest case-to-death ratio
+										top_counties <- final_merged_data %>%
+										  arrange(desc(Case_Death_Ratio)) %>%
+										  slice(1:10)
+										
+										View(top_counties)
+										
+										
+										# Graph
+										
+										library(ggplot2)
+										
+										# Create a bar chart
+										ggplot(top_counties, aes(x = reorder(paste(county, ", ", state), -Case_Death_Ratio), y = Case_Death_Ratio)) +
+										  geom_bar(stat = "identity", fill = "skyblue") +
+										  labs(title = "Top 10 Counties with Highest Case-to-Death Ratio",
+											   x = "County, State",
+											   y = "Case-to-Death Ratio") +
+										  theme_minimal() +
+										  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+										
+										# Now just need to compare to effects on mobility
+										# (upon visual examination) each of these counties have extreme changes in their mobility reports
+										
+										
+										write.csv(final_merged_data, file = "actualfinal_merged_data.csv", row.names = FALSE);
+
+
+</code></pre>
+
+							</section>
+
+					</div>
+
+				<!-- Footer -->
+					<footer id="footer">
+							<section>
+								<h3>Email</h3>
+								<p><a href="#">reedfosterphot@gmail.com</a></p>
+							</section>
+							<section>
+								<h3>Social</h3>
+								<ul class="icons alt">
+									<li><a href="#" class="icon brands alt fa-linkedin"><span class="label">LinkedIn</span></a></li>
+									<li><a href="#" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+								</ul>
+							</section>
+						</section>
+					</footer>
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Untitled</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

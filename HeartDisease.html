@@ -1,0 +1,237 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Elements Reference - Massively by HTML5 UP</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">My Portfolio</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="index.html">Reed's Portfolio</a></li>
+							<li class="active"><a href="elements.html">Code/Details</a></li>
+						</ul>
+						<ul class="icons">
+							<li><a href="#" class="icon brands fa-linkedin"><span class="label">LinkedIn</span></a></li>
+							<li><a href="#" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<h1>Heart Disease Prevention and Correlation Analysis</h1>
+								</header>
+
+								<!-- Text stuff -->
+									<header>
+										<h2>Project Details</h2>
+										<p>Worked in groups of 3.</p>
+									</header>
+									<p>Conducted a comprehensive analysis of heart disease prevalence using computational thinking and Python programming. Utilized a dataset sourced from Kaggle to examine the relationship between various clinical variables and the likelihood of developing heart disease. Developed graphical representations and performed linear regression analysis to identify key correlations. The project aims to provide actionable insights for individuals to mitigate their risk of heart disease.</p>
+									<header>
+										<h3>Download project details below</h3>
+										<p>The link below provides all necessary background details and visualizations associated with the project.</p>
+									</header>
+									<a href="images/Heart/Group 1.12 Final Presentation.pptx" download>Link to final project report</a>
+									<p></p>
+									<a href="images/Heart/Project_Instructions.pdf" download>Link to project instructions</a>
+									<header>
+									<hr />
+
+
+
+								<!-- Preformatted Code -->
+									<h2>My code</h2>
+									<p>Note: Two .py files included (Main and Utilities)</p>
+									<pre><code>
+
+#Utilities (first .py file)
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import statsmodels.api as sm
+from sklearn.linear_model import LinearRegression
+
+
+
+#GRAPH 1
+def plotCholesterolContribution():
+#dataframe
+    df = pd.read_csv("heart_disease_prediction.csv")
+    df.head()
+
+# Read the data from an Excel file into a pandas DataFrame
+data = pd.read_csv('heart_disease_prediction.csv')
+
+# Create a new DataFrame that only includes rows where Cholesterol is over 240
+high_cholesterol = data[data['Cholesterol'] > 240]
+
+# Group the data by Heart Disease and count the number of occurrences of each value
+heart_disease_counts = high_cholesterol.groupby('Heart Disease')['Cholesterol'].count()
+
+# Create a pie chart to show the correlation between high cholesterol levels and heart disease
+plt.pie(heart_disease_counts, labels=heart_disease_counts.index, autopct='%1.1f%%')
+plt.title('Correlation between high cholesterol and heart disease')
+
+plt.savefig('cholesterol_contribution.png', dpi=300, bbox_inches='tight')
+plt.show()
+
+#GRAPH 2
+def plotIdentityContribution():  
+    # Load dataframe  
+    df = pd.read_csv("heart_disease_prediction.csv")
+  
+    # map sex data  
+    df['Sex'] = df['Sex'].map({0: 'Female', 1: 'Male'})   
+
+    # Subset dataframe to only include instances where Heart Disease is 'Presence'  
+    presence = df[df['Heart Disease'] == 'Presence']   
+
+    # Create separate dataframes for males and females   
+    males = presence[presence['Sex'] == 'Male']   
+    females = presence[presence['Sex'] == 'Female']   
+
+    # Group by age and sex to get the count of heart disease cases   
+    grouped = presence.groupby(['Age', 'Sex'])['Heart Disease'].count().reset_index()   
+
+    # Merge male and female counts into a single DataFrame   
+    merged = grouped.pivot(index='Age', columns='Sex', values='Heart Disease').fillna(0)   
+
+    # Create bar plot using the merged DataFrame   
+    merged.plot(kind='bar', xlabel='Age', ylabel='Number of cases', title='Heart Disease by Age and Gender (Presence)')   
+    plt.legend(title='Gender', loc='upper left')   
+    plt.tight_layout()   
+    plt.savefig('hd_age_gender_presence.png', dpi=300, bbox_inches='tight')   
+    plt.show() 
+
+plotIdentityContribution()
+ 
+
+#GRAPH 3
+def plotMaxHR():
+    df = pd.read_csv('heart_disease_prediction.csv')
+
+    # Filter the DataFrame to include only rows where Max HR is greater than or equal to 160
+    df_160 = df[df['Max HR'] >= 160]
+
+    # Group the filtered DataFrame by Heart Disease and count the number of rows for each group
+    df_counts = df_160.groupby('Heart Disease').size()
+
+    # Create a bar chart of the counts
+    df_counts.plot(kind='bar')
+
+    # Set the X-axis and Y-axis labels
+    plt.xlabel('Heart Disease')
+    plt.ylabel('Count')
+
+    plt.title('Number of People with Max HR of 160 in terms of correlation with Heart Disease')
+    plt.savefig('MaxHR.png', dpi=300, bbox_inches='tight')
+    # Show the plot
+    plt.show()
+
+plotMaxHR() # Call the function to generate the plot
+
+#LINEAR REGRESSION
+# Load numeric data
+num_data = pd.read_csv('heart_disease_prediction.csv')  
+
+# Subset data to relevant columns
+x = num_data[['Sex', 'Chest pain type', 'BP', 'Max HR', 'Exercise angina', 'Number of vessels fluro', 'Thallium']]  
+
+# Extract target variable
+y = num_data['Heart Disease'].map({'Absence': 0, 'Presence': 1})  
+
+# Fit linear regression model
+model = LinearRegression().fit(x,y)  
+
+print('Coefficients: ', model.coef_)  
+print('Intercept: ', model.intercept_)  
+print('R-squared: ', model.score(x, y))  
+
+# Add a constant term to the predictor variables  
+x = sm.add_constant(x)  
+
+# Create a linear regression model and fit it to the data  
+model = sm.OLS(y, x).fit()  
+
+# Print the summary of the regression results, including p-values for the coefficients  
+print(model.summary())  
+
+#Main (seperate .py file)
+import utilities as ut
+import time
+
+def main():
+    ut.plotCholesterolContribution()
+    time.sleep(.8)
+    
+    ut.plotIdentityContribution
+    time.sleep(.8)
+    
+    ut.plotMaxHR
+    time.sleep(.8)
+    
+if __name__ == "__main__":
+    main()
+
+</code></pre>
+
+							</section>
+
+					</div>
+
+				<!-- Footer -->
+					<footer id="footer">
+							<section>
+								<h3>Email</h3>
+								<p><a href="#">reedfosterphot@gmail.com</a></p>
+							</section>
+							<section>
+								<h3>Social</h3>
+								<ul class="icons alt">
+									<li><a href="#" class="icon brands alt fa-linkedin"><span class="label">LinkedIn</span></a></li>
+									<li><a href="#" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+								</ul>
+							</section>
+						</section>
+					</footer>
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Untitled</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
